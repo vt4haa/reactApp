@@ -1,7 +1,7 @@
 import { Layout, Card, Statistic, List, Typography, Spin } from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
-import {fakeFetchCrypto, fecthAssats} from "../../api"
+// import {fakeFetchCrypto, fecthAssats} from "../../api"
 
 const siderStyle = {
 	padding: "1rem",
@@ -17,18 +17,18 @@ const data = [
 
 export default function AppSider() {
 	const [loading, setLoading] = useState(false)
-	const [crypto, setCrypto] = useState([])
-	const [assets, setAssets] = useState([])
+	// const [crypto, setCrypto] = useState([])
+	// const [assets, setAssets] = useState([])
 
 	
 	useEffect(() => {
 		async function preLoad() {
 			setLoading(true)
-			const {result} = await fakeFetchCrypto()
-			const assets = await fecthAssats()
+			// const {result} = await fakeFetchCrypto()
+			// const assets = await fecthAssats()
 
-			setAssets(assets)
-			setCrypto(result)
+			// setAssets(assets)
+			// setCrypto(result)
 			setLoading(false)
 		}
 		preLoad()
