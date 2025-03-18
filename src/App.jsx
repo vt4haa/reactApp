@@ -1,6 +1,6 @@
 import { Layout } from 'antd';
 import AppHeader from './conponents/layout/AppHeader';
-import AppSider from './conponents/AppSider';
+import AppSider from './conponents/layout/AppSider';
 import AppContent from './conponents/layout/AppContent';
 
 
