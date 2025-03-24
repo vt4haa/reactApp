@@ -1,52 +1,25 @@
-import { Layout, Card, Statistic, List, Typography, Spin, Tag  } from "antd";
+import { Layout, Card, Statistic, List, Typography, Tag  } from "antd";
 import { ArrowDownOutlined, ArrowUpOutlined } from "@ant-design/icons";
-import { useEffect, useState } from "react";
-import {fakeFetchCrypto, fetchAssets} from "../../api"
 import { Percent } from "antd/es/progress/style";
-import { percentDifference } from "../../utils";
+import { capitalize } from "../../utils";
+import { useContext } from "react";
+import CryptoContext from "../../context/crypto-context";
 
 const siderStyle = {
 	padding: "1rem",
 };
 
 export default function AppSider() {
-	const [loading, setLoading] = useState(false)
-	const [crypto, setCrypto] = useState([])
-	const [assets, setAssets] = useState([])
-
+	const {assets} = useContext(CryptoContext)
 	
-	useEffect(() => {
-		async function preLoad() {
-			setLoading(true)
-			const {result} = await fakeFetchCrypto()
-			const assets = await fetchAssets()
 
-			setAssets(assets.map((asset) => {
-				const coin = result.find((c) => c.id === asset.id)
-				return {
-					grow: asset.price < coin.price,
-					growPercent: percentDifference(asset.price, coin.price),
-					totalAmount: asset.amount * coin.price,
-					totalProfit: asset.amount * coin.price - asset.amount * asset.price,
-					... asset,
-				}
-			}))
-			setCrypto(result)
-			setLoading(false)
-		}
-		preLoad()
-	}, [])
-
-	if (loading) {
-		return (<Spin fullscreen />)
-	}
 
 	return (
 		<Layout.Sider width="25%" style={siderStyle}>
 		{assets.map( asset => (
 			<Card key = {asset.id} style={{ marginBottom: "1rem" }}>
 			<Statistic
-				title={asset.id}
+				title={capitalize(asset.id)}
 				value={asset.totalAmount}
 				precision={2}
 				valueStyle={{
@@ -60,7 +33,6 @@ export default function AppSider() {
 				dataSource={[
 					{title: 'Total Profit', value: asset.totalProfit, withTag: true},
 					{title: 'Asset Amount', value: asset.amount, isPlain: true},
-					{title: 'Difference', value: asset.growPercent},
 				]}
 				renderItem={(item) => (
 					<List.Item>
