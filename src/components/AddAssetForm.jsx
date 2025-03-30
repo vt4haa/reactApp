@@ -7,26 +7,37 @@ import {
 	Form,
 	InputNumber,
 	Button,
-    DatePicker
+    DatePicker,
+	Result
 } from "antd";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useCrypto } from "../context/crypto-context";
-
-const validateMessage = {
-    required: '${label}is required',
-    types: {
-        number: '${label} is not valid number'
-    },
-    number: {
-        range: '${label} must be between ${min} and {max}',
-    }
-}
+import CoinInfo  from "./layout/CoinInfo";
 
 
-export default function AddAssetForm() {
+
+export default function AddAssetForm( {onClose} ) {
     const [form] = Form.useForm()
-	const { crypto } = useCrypto();
-	const [coin, setCoin] = useState(null);
+	const { crypto, addAsset } = useCrypto();
+	const [coin, setCoin] = useState(null)
+	const [submited, setSubmited] = useState(false)
+	const assetRef = useRef()
+
+	if (submited) {
+		return (
+			<Result
+			status="success"
+			title=" New asset Added"
+			subTitle={`Added ${assetRef.current.amount} of ${coin.name} by price ${assetRef.current.price}`}
+			extra={[
+			  <Button type="primary" key="console" onClick={onClose}>
+				Close
+			  </Button>,
+			]}
+		  />
+		)
+	}
+
 
 	if (!coin) {
 		return (
@@ -55,11 +66,27 @@ export default function AddAssetForm() {
 	}
 
 	function onFinish(values) {
-		console.log("finish", values);
+		const newAsset = {
+			id: coin.id,
+			amount: values.amount,
+			price: values.price,
+			date: values.date?.$d ?? new Date(), 
+		}
+		assetRef.current = newAsset
+		setSubmited(true)
+		addAsset(newAsset)
 	}
     function handleAmountChange(value) {
+		const price = form.getFieldValue('price')
         form.setFieldsValue({
-            total: value * coin.price, 
+            total: +(value * price).toFixed(2)
+        })
+    }
+
+	function handlePriceChange(value) {
+		const amount = form.getFieldValue('amount')
+        form.setFieldsValue({
+            total: +(amount * value).toFixed(2),
         })
     }
 
@@ -74,18 +101,17 @@ export default function AddAssetForm() {
                 price: +coin.price.toFixed(2)
             }}
 			onFinish={onFinish}
-            validateMessage={validateMessage}
+            validateMessages={{
+				required: '${label} is required',
+				types: {
+				  number: '${label} is not a valid number'
+				},
+				number: {
+				  range: '${label} must be between ${min} and ${max}',
+				}
+			  }}
 		>
-			<Flex align="center">
-				<img
-					src={coin.icon}
-					alt={coin.name}
-					style={{ width: 40, marginRight: 10 }}
-				/>
-				<Typography.Title level={2} style={{ margin: 0 }}>
-					{coin.name}
-				</Typography.Title>
-			</Flex>
+			<CoinInfo coin = {coin} />
 			<Divider />
 
 			<Form.Item
@@ -105,7 +131,7 @@ export default function AddAssetForm() {
 			</Form.Item>
 
 			<Form.Item label="Price" name="price">
-				<InputNumber disabled style={{ width: "100%" }} />
+				<InputNumber onChange={handlePriceChange} style={{ width: "100%" }} />
 			</Form.Item>
 
             <Form.Item label="Date & Time" name="date">
