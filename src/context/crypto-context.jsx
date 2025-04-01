@@ -1,9 +1,9 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useState, useEffect, useContext } from "react";
 import { fakeFetchCrypto, fetchAssets } from "../api";
 import { percentDifference } from "../utils";
 
 const CryptoContext = createContext({
-	asserts: [],
+	assets: [],
 	crypto: [],
 	loading: false,
 });
@@ -13,35 +13,35 @@ export function CryptoContextProvider({ children }) {
 	const [crypto, setCrypto] = useState([]);
 	const [assets, setAssets] = useState([]);
 
-	function mapAsset(asset, result) {
-		return assets.map(asset => {
+	function mapAssets(assets, result) {
+		return assets.map((asset) => {
 			const coin = result.find((c) => c.id === asset.id);
 			return {
-			grow: asset.price < coin.price,
-			growPercent: percentDifference(asset.price, coin.price),
-			totalAmount: asset.amount * coin.price,
-			totalProfit: asset.amount * coin.price - asset.amount * asset.price,
-			...asset,
-		};
-		})
-		
+				grow: asset.price < coin.price,
+				growPercent: percentDifference(asset.price, coin.price),
+				totalAmount: asset.amount * coin.price,
+				totalProfit: asset.amount * coin.price - asset.amount * asset.price,
+				name: coin.name,
+				...asset,
+			};
+		});
 	}
 
 	useEffect(() => {
-		async function preLoad() {
+		async function preload() {
 			setLoading(true);
 			const { result } = await fakeFetchCrypto();
 			const assets = await fetchAssets();
 
-			setAssets(mapAsset(assets, result));
+			setAssets(mapAssets(assets, result));
 			setCrypto(result);
 			setLoading(false);
 		}
-		preLoad();
+		preload();
 	}, []);
 
 	function addAsset(newAsset) {
-		setAssets((prev) => [prev, newAsset], crypto) 
+		setAssets((prev) => mapAssets([...prev, newAsset], crypto));
 	}
 
 	return (

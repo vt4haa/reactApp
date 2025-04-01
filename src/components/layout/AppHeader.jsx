@@ -18,13 +18,13 @@ export default function AppHeader() {
 	const [select, setSelect] = useState(false);
 	const [coin, setCoin] = useState(null);
 	const [modal, setModal] = useState(false);
-	const [drawer, setDrawer] = useState(true);
+	const [drawer, setDrawer] = useState(false);
 	const { crypto } = useCrypto();
 
 	useEffect(() => {
 		const keypress = (event) => {
 			if (event.key === "/") {
-				(prev) => !prev;
+				setSelect((prev) => !prev);
 			}
 		};
 		document.addEventListener("keypress", keypress);
@@ -58,14 +58,13 @@ export default function AppHeader() {
 							src={option.data.icon}
 							atl={option.data.label}
 						/>{" "}
-						{""}
 						{option.data.label}
 					</Space>
 				)}
 			/>
 
 			<Button type="primary" onClick={() => setDrawer(true)}>
-				Add Asset Text
+				Add Asset
 			</Button>
 
 			<Modal open={modal} onCancel={() => setModal(false)} footer={null}>
@@ -79,7 +78,7 @@ export default function AppHeader() {
 				open={drawer}
 				destroyOnClose
 			>
-				<AddAssetForm onClose={() => setDrawer(false)}/>
+				<AddAssetForm onClose={() => setDrawer(false)} />
 			</Drawer>
 		</Layout.Header>
 	);
